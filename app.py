@@ -59,7 +59,7 @@ st.write("TOTAL SIGNALS FOUND:", len(results))
 # LOWER FILTER
 filtered = [
     x for x in results
-    if x["Probability"] >= 65
+    if x["Probability"] >= 85
 ]
 
 # SORT
