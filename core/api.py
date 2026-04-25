@@ -1,6 +1,6 @@
 import requests
 
-API_KEY = "YOUR_API_KEY"
+API_KEY = "8e8e190ddc36b52d4def457cb00c7c80"
 
 SPORT = "soccer"
 
