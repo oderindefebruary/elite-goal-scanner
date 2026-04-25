@@ -42,15 +42,16 @@ for match in matches:
 
                         # LOOK FOR OVER 0.5
 
-                        if name == "Over" and point == 1.5:
+                       if name == "Over":
 
-                            implied_probability = round((1 / price) * 100, 2)
+    implied_probability = round((1 / price) * 100, 2)
 
-                            results.append({
-                                "Match": f"{home} vs {away}",
-                                "Odds": price,
-                                "Probability": implied_probability
-                            })
+    results.append({
+        "Match": f"{home} vs {away}",
+        "Market": f"Over {point}",
+        "Odds": price,
+        "Probability": implied_probability
+    })
 
     except:
         continue
