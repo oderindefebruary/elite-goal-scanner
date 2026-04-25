@@ -1,50 +1,73 @@
 import streamlit as st
 import pandas as pd
 
-from core.scraper import get_fixtures
-from core.model import load_team_strength, calculate_probability
+from core.api import get_matches
 
 st.set_page_config(page_title="Elite Goal Scanner", layout="wide")
 
 st.title("⚽ Elite Goal Scanner")
 
-st.write("Over 0.5 Goal Probability Engine (No API Version)")
+st.write("Live Over 0.5 Probability Scanner")
 
-# LOAD DATA
-team_df = load_team_strength()
-
-# GET FIXTURES
-fixtures = get_fixtures()
+matches = get_matches()
 
 results = []
 
-for home, away in fixtures:
+for match in matches:
 
     try:
-        prob = calculate_probability(home, away, team_df)
 
-        if prob >= 80:
+        home = match["home_team"]
+        away = match["away_team"]
 
-            results.append({
-                "Match": f"{home} vs {away}",
-                "Probability": prob
-            })
+        bookmakers = match["bookmakers"]
+
+        for bookmaker in bookmakers:
+
+            markets = bookmaker["markets"]
+
+            for market in markets:
+
+                if market["key"] == "totals":
+
+                    outcomes = market["outcomes"]
+
+                    for outcome in outcomes:
+
+                        name = outcome["name"]
+
+                        point = outcome.get("point", 0)
+
+                        price = outcome["price"]
+
+                        # LOOK FOR OVER 0.5
+
+                        if name == "Over" and point == 0.5:
+
+                            implied_probability = round((1 / price) * 100, 2)
+
+                            results.append({
+                                "Match": f"{home} vs {away}",
+                                "Odds": price,
+                                "Probability": implied_probability
+                            })
 
     except:
         continue
 
-# SORT RESULTS
-results = sorted(results, key=lambda x: x["Probability"], reverse=True)
+# FILTER
+filtered = [x for x in results if x["Probability"] >= 80]
 
-df = pd.DataFrame(results)
+# SORT
+filtered = sorted(filtered, key=lambda x: x["Probability"], reverse=True)
+
+df = pd.DataFrame(filtered)
 
 st.subheader("Top Goal Signals")
 
 st.dataframe(df, use_container_width=True)
 
-st.subheader("Probability Chart")
-
 if not df.empty:
-    st.bar_chart(df.set_index("Match"))
+    st.bar_chart(df.set_index("Match")["Probability"])
 else:
-    st.warning("No high probability matches found today.")
+    st.warning("No qualifying matches found.")
