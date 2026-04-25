@@ -23,7 +23,7 @@ for home, away in fixtures:
     try:
         prob = calculate_probability(home, away, team_df)
 
-        if prob >= 90:
+        if prob >= 80:
 
             results.append({
                 "Match": f"{home} vs {away}",
