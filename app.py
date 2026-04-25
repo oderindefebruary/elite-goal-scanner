@@ -42,7 +42,7 @@ for match in matches:
 
                         # LOOK FOR OVER 0.5
 
-                        if name == "Over" and point == 0.5:
+                        if name == "Over" and point == 1.5:
 
                             implied_probability = round((1 / price) * 100, 2)
 
