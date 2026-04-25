@@ -7,7 +7,7 @@ st.set_page_config(page_title="Elite Goal Scanner", layout="wide")
 
 st.title("⚽ Elite Goal Scanner")
 
-st.write("Live Over 0.5 Probability Scanner")
+st.write("Live Odds Goal Scanner")
 
 matches = get_matches()
 
@@ -20,55 +20,65 @@ for match in matches:
         home = match["home_team"]
         away = match["away_team"]
 
-        bookmakers = match["bookmakers"]
+        bookmakers = match.get("bookmakers", [])
 
         for bookmaker in bookmakers:
 
-            markets = bookmaker["markets"]
+            markets = bookmaker.get("markets", [])
 
             for market in markets:
 
                 if market["key"] == "totals":
 
-                    outcomes = market["outcomes"]
+                    outcomes = market.get("outcomes", [])
 
                     for outcome in outcomes:
 
-                        name = outcome["name"]
+                        name = outcome.get("name")
+                        point = outcome.get("point")
+                        price = outcome.get("price")
 
-                        point = outcome.get("point", 0)
+                        # ALL OVER MARKETS
+                        if name == "Over":
 
-                        price = outcome["price"]
+                            implied_probability = round((1 / price) * 100, 2)
 
-                        # LOOK FOR OVER 0.5
+                            results.append({
+                                "Match": f"{home} vs {away}",
+                                "Market": f"Over {point}",
+                                "Odds": price,
+                                "Probability": implied_probability
+                            })
 
-                       if name == "Over":
+    except Exception as e:
+        st.write("ERROR:", e)
 
-    implied_probability = round((1 / price) * 100, 2)
+# DEBUG
+st.write("TOTAL SIGNALS FOUND:", len(results))
 
-    results.append({
-        "Match": f"{home} vs {away}",
-        "Market": f"Over {point}",
-        "Odds": price,
-        "Probability": implied_probability
-    })
-
-    except:
-        continue
-
-# FILTER
-filtered = [x for x in results if x["Probability"] >= 80]
+# LOWER FILTER
+filtered = [
+    x for x in results
+    if x["Probability"] >= 65
+]
 
 # SORT
-filtered = sorted(filtered, key=lambda x: x["Probability"], reverse=True)
+filtered = sorted(
+    filtered,
+    key=lambda x: x["Probability"],
+    reverse=True
+)
 
 df = pd.DataFrame(filtered)
 
-st.subheader("Top Goal Signals")
-
-st.dataframe(df, use_container_width=True)
+st.subheader("Signals")
 
 if not df.empty:
+
+    st.dataframe(df, use_container_width=True)
+
     st.bar_chart(df.set_index("Match")["Probability"])
+
 else:
+
     st.warning("No qualifying matches found.")
