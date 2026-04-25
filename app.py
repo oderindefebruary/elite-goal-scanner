@@ -57,33 +57,10 @@ for match in matches:
 st.write("TOTAL SIGNALS FOUND:", len(results))
 
 # LOWER FILTER
-filtered = []
-
-seen = set()
-
-for x in results:
-
-    match = x["Match"]
-    market = x["Market"]
-    prob = x["Probability"]
-
-    # REMOVE DUPLICATES
-    unique_key = f"{match}-{market}"
-
-    if unique_key in seen:
-        continue
-
-    seen.add(unique_key)
-
-    # KEEP ONLY SAFE MARKETS
-    if market not in ["Over 0.5", "Over 1.5"]:
-        continue
-
-    # FILTER HIGH CONFIDENCE
-    if prob < 72:
-        continue
-
-    filtered.append(x)
+filtered = [
+    x for x in results
+    if x["Probability"] >= 65
+]
 
 # SORT
 filtered = sorted(
