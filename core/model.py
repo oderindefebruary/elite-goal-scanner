@@ -1,13 +1,21 @@
 import pandas as pd
 
 def load_team_strength():
-
     return pd.read_csv("data/team_strength.csv")
+
+
+# SIMPLE NORMALISATION FIX
+
+def normalize(name):
+    return name.lower().strip()
 
 
 def get_team_strength(team, df):
 
-    row = df[df["team"] == team]
+    team = normalize(team)
+    df["norm"] = df["team"].apply(normalize)
+
+    row = df[df["norm"] == team]
 
     if len(row) == 0:
         return 0.50, 0.50
@@ -19,8 +27,6 @@ def calculate_probability(home, away, df):
 
     home_attack, home_def = get_team_strength(home, df)
     away_attack, away_def = get_team_strength(away, df)
-
-    # OVER 0.5 GOAL LOGIC (simple but effective MVP model)
 
     probability = (
         (home_attack * 0.6) +
