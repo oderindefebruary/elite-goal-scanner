@@ -17,10 +17,15 @@ def get_fixtures():
 
         if "vs" in text:
 
-            try:
-                home, away = text.split("vs")
-                fixtures.append((home.strip(), away.strip()))
-            except:
-                continue
+            parts = text.split("vs")
+
+            if len(parts) == 2:
+
+                home = parts[0].strip()
+                away = parts[1].strip()
+
+                # filter junk rows
+                if len(home) > 2 and len(away) > 2:
+                    fixtures.append((home, away))
 
     return fixtures
